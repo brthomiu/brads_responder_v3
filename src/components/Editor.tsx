@@ -2,15 +2,17 @@ import type { Template } from "../types/Template";
 import { templateList } from "../templateList";
 import type { InfoObject } from "../types/InfoObject";
 import { getCurrentLocalDateMMDDYYYY } from "../features/getCurrentLocalDate";
-
 import React, { useState } from "react";
 import { processVariables } from "../features/matchVariable";
 
+interface InputField {
+  key: string;
+  label: string;
+}
+
 function Editor() {
   // State for selected template from dropdown menu
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
-    null
-  );
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
 
   // States that make up the OrderInfo Object
   const [infoObject, setInfoObject] = useState<InfoObject>({
@@ -55,9 +57,27 @@ function Editor() {
     localStorage.setItem("infoObject", JSON.stringify(newInfoObject));
   };
 
+  // Define input fields
+  const inputFields: InputField[] = [
+    { key: "#tech", label: "Technician" },
+    { key: "#user", label: "User" },
+    { key: "#item", label: "Item" },
+    { key: "#closed", label: "Closed" },
+    { key: "#location", label: "Location" },
+    { key: "#time", label: "Timeline" },
+    { key: "#tracking", label: "Tracking" },
+    { key: "#extraNote", label: "Extra Note" },
+  ];
+
+  // Function to check if a variable is present in the text
+  const isVariablePresent = (variable: string): boolean => {
+    return text.includes(variable);
+  };
+
+  // Return JSX ------------------------------------------------------------------------------------------------
   return (
     <div className="flex flex-col">
-      {/* Load Template */}
+      {/* Load Template Selector */}
       <div className="mb-6">
         <select
           className="bg-gray-700 h-8 w-lg text-lg font-semibold py-1 px-2 text-white rounded-md"
@@ -76,142 +96,44 @@ function Editor() {
           <option value="" disabled>
             {"Load Template"}
           </option>
-          <option value="template1">{"Template 1"}</option>
-          <option value="template2">{"Template 2"}</option>
+          {templateList.map((template) => (
+            <option key={template.name} value={template.name}>
+              {template.name}
+            </option>
+          ))}
         </select>
       </div>
 
-      {/* Information */}
+      {/* Information Entry Section ------------------------------------------------------------------------------------------ */}
       <form className="flex flex-col gap-2 mb-6">
-        {/* Tech */}
-
-        {text.includes("#tech") && (
-          <div className="w-lg h-8 flex flex-row">
-            <div className="bg-gray-700 h-8 w-42 text-lg px-2 text-white font-semibold rounded-l-md">
-              {"Technician"}
+        {inputFields.map((field) => (
+          isVariablePresent(field.key) && (
+            <div key={field.key} className="w-lg h-8 flex flex-row">
+              <div
+                className="bg-gray-700 h-8 w-42 text-lg px-2 text-white font-semibold rounded-l-md outline-none"
+              >
+                {field.label}
+              </div>
+              <input
+                key={field.key}
+                className="bg-gray-800 h-8 w-full px-2 text-white rounded-r-md outline-none"
+                type="text"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                  handleInfoObjectChange(event, field.key as "tech" | "user" | "item" | "orderClosed" | "location" | "timeFrame" | "tracking" | "extraNote")
+                }
+              ></input>
             </div>
-            <input
-              className="bg-gray-800 h-8 w-full px-2 text-white rounded-r-md"
-              type="text"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                handleInfoObjectChange(event, "tech")
-              }
-            ></input>
-          </div>
-        )}
-        {/* User */}
-        {text.includes("#user") && (
-          <div className="w-lg h-8 flex flex-row">
-            <div className="bg-gray-700 h-8 w-42 text-lg px-2 text-white font-semibold rounded-l-md">
-              {"User"}
-            </div>
-            <input
-              className="bg-gray-800 h-8 w-full px-2 text-white rounded-r-md"
-              type="text"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                handleInfoObjectChange(event, "user")
-              }
-            ></input>
-          </div>
-        )}
-        {/* Item */}
-        {text.includes("#item") && (
-          <div className="w-lg h-8 flex flex-row">
-            <div className="bg-gray-700 h-8 w-42 text-lg px-2 text-white font-semibold rounded-l-md">
-              {"Item"}
-            </div>
-            <input
-              className="bg-gray-800 h-8 w-full px-2 text-white rounded-r-md"
-              type="text"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                handleInfoObjectChange(event, "item")
-              }
-            ></input>
-          </div>
-        )}
-        {/* Closed */}
-        {text.includes("#closed") && (
-          <div className="w-lg h-8 flex flex-row">
-            <div className="bg-gray-700 h-8 w-42 text-lg px-2 text-white font-semibold rounded-l-md">
-              {"Closed"}
-            </div>
-            <input
-              className="bg-gray-800 h-8 w-full px-2 text-white rounded-r-md"
-              type="text"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                handleInfoObjectChange(event, "orderClosed")
-              }
-            ></input>
-          </div>
-        )}
-        {/* Location */}
-        {text.includes("#location") && (
-          <div className="w-lg h-8 flex flex-row">
-            <div className="bg-gray-700 h-8 w-42 text-lg px-2 text-white font-semibold rounded-l-md">
-              {"Location"}
-            </div>
-            <input
-              className="bg-gray-800 h-8 w-full px-2 text-white rounded-r-md"
-              type="text"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                handleInfoObjectChange(event, "location")
-              }
-            ></input>
-          </div>
-        )}
-        {/* Time */}
-        {text.includes("#time") && (
-          <div className="w-lg h-8 flex flex-row">
-            <div className="bg-gray-700 h-8 w-42 text-lg px-2 text-white font-semibold rounded-l-md">
-              {"Timeline"}
-            </div>
-            <input
-              className="bg-gray-800 h-8 w-full px-2 text-white rounded-r-md"
-              type="text"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                handleInfoObjectChange(event, "timeFrame")
-              }
-            ></input>
-          </div>
-        )}
-        {/* Tracking */}
-        {text.includes("#tracking") && (
-          <div className="w-lg h-8 flex flex-row">
-            <div className="bg-gray-700 h-8 w-42 text-lg px-2 text-white font-semibold rounded-l-md">
-              {"Tracking"}
-            </div>
-            <input
-              className="bg-gray-800 h-8 w-full px-2 text-white rounded-r-md"
-              type="text"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                handleInfoObjectChange(event, "tracking")
-              }
-            ></input>
-          </div>
-        )}
-        {/* Extra Note */}
-        {text.includes("#extraNote") && (
-          <div className="w-lg h-8 flex flex-row">
-            <div className="bg-gray-700 h-8 w-42 text-lg px-2 text-white font-semibold rounded-l-md">
-              {"Extra Note"}
-            </div>
-            <input
-              className="bg-gray-800 h-8 w-full px-2 text-white rounded-r-md"
-              type="text"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                handleInfoObjectChange(event, "extraNote")
-              }
-            ></input>
-          </div>
-        )}
+          )
+        ))}
       </form>
 
-      {/* Text Editor */}
+      {/* Rendered Text ------------------------------------------------------------------------------------------------------- */}
       <div className="bg-gray-700 w-lg h-10 text-white text-lg font-semibold py-1 px-2 rounded-t-md">
         {selectedTemplate ? selectedTemplate.name : "Editor"}
       </div>
       <textarea
-        className="mb-2 bg-gray-800 text-white p-4 rounded-b-md w-lg h-48"
+        readOnly
+        className="mb-2 bg-gray-800 text-white p-4 rounded-b-md w-lg h-48 caret-transparent outline-none"
         value={processVariables(text, infoObject)}
         onChange={handleChange}
         placeholder="Enter text here..."

@@ -2,11 +2,11 @@ import type { Template } from "./types/Template";
 
 export const templateList: Template[] = [
   {
-    name: "template1",
-    body: "This is #tech 1 body.\n\nVariable test #user delivers #item.",
+    name: "Template 1",
+    body: "Hello #user,\n\nThis is #item template 1.\n\n#extraNote\n\nBest regards,\n#tech",
   },
   {
-    name: "template2",
-    body: "This is #location and #time and #today 2 body.\n\nYou can edit this text.",
+    name: "Template 2",
+    body: "Hello #user,\n\nThis is #tracking template 2\n\n#extraNote\n\nBest regards,\n#tech",
   },
 ];

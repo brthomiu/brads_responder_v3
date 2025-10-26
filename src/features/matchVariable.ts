@@ -31,6 +31,7 @@ export const processVariables = (
   infoObject: InfoObject
 ): string => {
   let processedText = text;
+
   const regex =
     /#(tech|user|item|closed|location|time|tracking|today|extraNote)/g;
   let match;
@@ -40,5 +41,9 @@ export const processVariables = (
     const replacement = matchVariable(variable, infoObject);
     processedText = processedText.replace(variable, replacement);
   }
+
+  // Replace three or more consecutive line breaks with exactly two line breaks
+  processedText = processedText.replace(/\n{3,}/g, "\n\n");
+
   return processedText;
 };
