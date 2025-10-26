@@ -26,7 +26,7 @@ const matchVariable = (variable: string, infoObject: InfoObject): string => {
   }
 };
 
-export const processVariables = (
+export const processText = (
   text: string,
   infoObject: InfoObject
 ): string => {

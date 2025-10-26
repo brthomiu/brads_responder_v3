@@ -1,78 +1,50 @@
-import type { Template } from "../types/Template";
-import { templateList } from "../templateList";
-import type { InfoObject } from "../types/InfoObject";
-import { getCurrentLocalDateMMDDYYYY } from "../features/getCurrentLocalDate";
 import React, { useState } from "react";
-import { processVariables } from "../features/matchVariable";
-
-interface InputField {
-  key: string;
-  label: string;
-}
+// Import Types
+import type { Template } from "../types/Template";
+import type { InputField } from "../types/InputField";
+import type { InfoObject } from "../types/InfoObject";
+// Import Features
+import { getCurrentLocalDateMMDDYYYY } from "../features/getCurrentLocalDate";
+import { processText } from "../features/processText";
+import { loadInputState } from "../features/loadInputState";
+import { handleChange } from "../features/handleChange";
+import { isVariablePresent } from "../features/isVariablePresent";
+// Import Templates
+import { templateList } from "../templateList";
 
 function Editor() {
   // State for selected template from dropdown menu
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
+    null
+  );
 
   // States that make up the OrderInfo Object
   const [infoObject, setInfoObject] = useState<InfoObject>({
-    tech: "",
-    user: "",
-    item: "",
-    orderClosed: "",
-    location: "",
-    timeFrame: "",
-    tracking: "",
+    tech: loadInputState("tech", ""),
+    user: loadInputState("user", ""),
+    item: loadInputState("item", ""),
+    orderClosed: loadInputState("orderClosed", ""),
+    location: loadInputState("location", ""),
+    timeFrame: loadInputState("timeFrame", ""),
+    tracking: loadInputState("tracking", ""),
     today: getCurrentLocalDateMMDDYYYY(),
-    extraNote: "",
+    extraNote: loadInputState("extraNote", ""),
   });
 
   // State for text area that holds final template text
   const [text, setText] = useState("");
 
-  // Handle text area change
-  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setText(event.target.value);
-    localStorage.setItem("editorContent", event.target.value);
-  };
-
-  // Handle changes to the infoObject inputs
-  const handleInfoObjectChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    field:
-      | "tech"
-      | "user"
-      | "item"
-      | "orderClosed"
-      | "location"
-      | "timeFrame"
-      | "tracking"
-      | "extraNote"
-  ) => {
-    const newInfoObject: InfoObject = { ...infoObject };
-
-    newInfoObject[field] = event.target.value;
-    setInfoObject(newInfoObject);
-
-    localStorage.setItem("infoObject", JSON.stringify(newInfoObject));
-  };
-
   // Define input fields
   const inputFields: InputField[] = [
-    { key: "#tech", label: "Technician" },
-    { key: "#user", label: "User" },
-    { key: "#item", label: "Item" },
-    { key: "#closed", label: "Closed" },
-    { key: "#location", label: "Location" },
-    { key: "#time", label: "Timeline" },
-    { key: "#tracking", label: "Tracking" },
-    { key: "#extraNote", label: "Extra Note" },
+    { key: "tech", label: "Technician" },
+    { key: "user", label: "User" },
+    { key: "item", label: "Item" },
+    { key: "closed", label: "Closed" },
+    { key: "location", label: "Location" },
+    { key: "time", label: "Timeline" },
+    { key: "tracking", label: "Tracking" },
+    { key: "extraNote", label: "Extra Note" },
   ];
-
-  // Function to check if a variable is present in the text
-  const isVariablePresent = (variable: string): boolean => {
-    return text.includes(variable);
-  };
 
   // Return JSX ------------------------------------------------------------------------------------------------
   return (
@@ -106,25 +78,38 @@ function Editor() {
 
       {/* Information Entry Section ------------------------------------------------------------------------------------------ */}
       <form className="flex flex-col gap-2 mb-6">
-        {inputFields.map((field) => (
-          isVariablePresent(field.key) && (
-            <div key={field.key} className="w-lg h-8 flex flex-row">
-              <div
-                className="bg-gray-700 h-8 w-42 text-lg px-2 text-white font-semibold rounded-l-md outline-none"
-              >
-                {field.label}
+        {inputFields.map(
+          (field) =>
+            isVariablePresent(text, field.key) && (
+              <div key={field.key} className="w-lg h-8 flex flex-row">
+                <div className="bg-gray-700 h-8 w-42 text-lg px-2 text-white font-semibold rounded-l-md outline-none">
+                  {field.label}
+                </div>
+                <input
+                  key={field.key}
+                  defaultValue={loadInputState(field.key, "")}
+                  className="bg-gray-800 h-8 w-full px-2 text-white rounded-r-md outline-none"
+                  type="text"
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    handleChange(
+                      infoObject,
+                      setInfoObject,
+                      event,
+                      field.key as
+                        | "tech"
+                        | "user"
+                        | "item"
+                        | "orderClosed"
+                        | "location"
+                        | "timeFrame"
+                        | "tracking"
+                        | "extraNote"
+                    )
+                  }
+                ></input>
               </div>
-              <input
-                key={field.key}
-                className="bg-gray-800 h-8 w-full px-2 text-white rounded-r-md outline-none"
-                type="text"
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                  handleInfoObjectChange(event, field.key as "tech" | "user" | "item" | "orderClosed" | "location" | "timeFrame" | "tracking" | "extraNote")
-                }
-              ></input>
-            </div>
-          )
-        ))}
+            )
+        )}
       </form>
 
       {/* Rendered Text ------------------------------------------------------------------------------------------------------- */}
@@ -134,15 +119,14 @@ function Editor() {
       <textarea
         readOnly
         className="mb-2 bg-gray-800 text-white p-4 rounded-b-md w-lg h-48 caret-transparent outline-none"
-        value={processVariables(text, infoObject)}
-        onChange={handleChange}
+        value={processText(text, infoObject)}
         placeholder="Enter text here..."
       ></textarea>
 
       {/* Copy Button - Copy contents to clipboard */}
       <button
         onClick={() => {
-          navigator.clipboard.writeText(processVariables(text, infoObject));
+          navigator.clipboard.writeText(processText(text, infoObject));
         }}
         className="bg-gray-700 h-10 w-full text-lg py-1 px-2 text-white font-semibold rounded-md hover:bg-gray-600 active:bg-gray-700"
       >
