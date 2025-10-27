@@ -1,0 +1,16 @@
+{
+    "name": "Responder v3",
+    "description": "Brad's Responder 3.0",
+    "version": "1.0",
+    "manifest_version": 3,
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "tabs"
+    ],
+    "action": {
+        "default_popup": "index.html",
+        "default_icon": "vite.svg"
+    }
+
+}

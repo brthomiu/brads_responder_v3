@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // <-- Import useEffect
 // Import Types
 import type { Template } from "../types/Template";
 import type { InputField } from "../types/InputField";
@@ -9,39 +9,51 @@ import { processText } from "../features/processText";
 import { loadInputState } from "../features/loadInputState";
 import { handleChange } from "../features/handleChange";
 import { isVariablePresent } from "../features/isVariablePresent";
+import { resetInputs } from "../features/resetInputs";
 // Import Templates
 import { templateList } from "../templateList";
 
+// --- CHANGE 1: Define the default template ---
+const defaultTemplate = templateList[0] || null;
+
 function Editor() {
+  // --- CHANGE 2: Update state initializations ---
   // State for selected template from dropdown menu
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
-    null
+    defaultTemplate
   );
 
   // States that make up the OrderInfo Object
   const [infoObject, setInfoObject] = useState<InfoObject>({
-    tech: loadInputState("tech", ""),
-    user: loadInputState("user", ""),
-    item: loadInputState("item", ""),
-    orderClosed: loadInputState("orderClosed", ""),
-    location: loadInputState("location", ""),
-    timeFrame: loadInputState("timeFrame", ""),
-    tracking: loadInputState("tracking", ""),
+    tech: loadInputState("tech", "Your Technician"),
+    user: loadInputState("user", "User"),
+    item: loadInputState("item", "requested item(s)"),
+    orderClosed: loadInputState("orderClosed", "This request is now being closed and the technician will no longer be able to see further responses, please visit go/stuff to request additional equipment, or visit go/fst-request for additional support."),
+    location: loadInputState("location", "your desk"),
+    timeFrame: loadInputState("time", "8 business hours"),
+    tracking: loadInputState("tracking", "FedEx-XXXXXXXXXX"),
     today: getCurrentLocalDateMMDDYYYY(),
     extraNote: loadInputState("extraNote", ""),
   });
 
   // State for text area that holds final template text
-  const [text, setText] = useState("");
+  const [text, setText] = useState(defaultTemplate?.body || "");
+  // --- End of CHANGE 2 ---
+
+  // --- CHANGE 3: Add useEffect to save to localStorage on load ---
+  useEffect(() => {
+    if (defaultTemplate) {
+      localStorage.setItem("editorContent", defaultTemplate.body);
+    }
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   // Define input fields
   const inputFields: InputField[] = [
     { key: "tech", label: "Technician" },
     { key: "user", label: "User" },
     { key: "item", label: "Item" },
-    { key: "closed", label: "Closed" },
     { key: "location", label: "Location" },
-    { key: "time", label: "Timeline" },
+    { key: "timeFrame", label: "Timeline" },
     { key: "tracking", label: "Tracking" },
     { key: "extraNote", label: "Extra Note" },
   ];
@@ -51,9 +63,10 @@ function Editor() {
     <div className="flex flex-col">
       {/* Load Template Selector */}
       <div className="mb-6">
+        {/* --- CHANGE 4: Update <select> to be a controlled component --- */}
         <select
           className="bg-gray-700 h-8 w-lg text-lg font-semibold py-1 px-2 text-white rounded-md"
-          defaultValue=""
+          value={selectedTemplate?.name || ""} // Use value prop bound to state
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
             const selectedName = e.target.value;
             const template =
@@ -65,19 +78,18 @@ function Editor() {
             }
           }}
         >
-          <option value="" disabled>
-            {"Load Template"}
-          </option>
+          {/* The disabled "Load Template" option is no longer needed */}
           {templateList.map((template) => (
             <option key={template.name} value={template.name}>
               {template.name}
             </option>
           ))}
         </select>
+        {/* --- End of CHANGE 4 --- */}
       </div>
 
       {/* Information Entry Section ------------------------------------------------------------------------------------------ */}
-      <form className="flex flex-col gap-2 mb-6">
+      <form className="flex flex-col gap-2 mb-4">
         {inputFields.map(
           (field) =>
             isVariablePresent(text, field.key) && (
@@ -86,8 +98,8 @@ function Editor() {
                   {field.label}
                 </div>
                 <input
-                  key={field.key}
-                  defaultValue={loadInputState(field.key, "")}
+                  // This is the change from the previous request (controlled component)
+                  value={infoObject[field.key as keyof InfoObject] || ""}
                   className="bg-gray-800 h-8 w-full px-2 text-white rounded-r-md outline-none"
                   type="text"
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -96,14 +108,13 @@ function Editor() {
                       setInfoObject,
                       event,
                       field.key as
-                        | "tech"
-                        | "user"
-                        | "item"
-                        | "orderClosed"
-                        | "location"
-                        | "timeFrame"
-                        | "tracking"
-                        | "extraNote"
+                      | "tech"
+                      | "user"
+                      | "item"
+                      | "location"
+                      | "timeFrame"
+                      | "tracking"
+                      | "extraNote"
                     )
                   }
                 ></input>
@@ -111,6 +122,7 @@ function Editor() {
             )
         )}
       </form>
+      <button className="mb-4 bg-red-900 h-10 w-full text-lg py-1 px-2 text-white font-semibold rounded-md hover:bg-red-800 active:bg-red-900" onClick={() => resetInputs(infoObject, setInfoObject)}>Reset Fields</button>
 
       {/* Rendered Text ------------------------------------------------------------------------------------------------------- */}
       <div className="bg-gray-700 w-lg h-10 text-white text-lg font-semibold py-1 px-2 rounded-t-md">
@@ -118,7 +130,7 @@ function Editor() {
       </div>
       <textarea
         readOnly
-        className="mb-2 bg-gray-800 text-white p-4 rounded-b-md w-lg h-48 caret-transparent outline-none"
+        className="mb-4 bg-gray-800 text-white p-4 rounded-b-md w-lg h-72 caret-transparent outline-none"
         value={processText(text, infoObject)}
         placeholder="Enter text here..."
       ></textarea>
@@ -128,7 +140,7 @@ function Editor() {
         onClick={() => {
           navigator.clipboard.writeText(processText(text, infoObject));
         }}
-        className="bg-gray-700 h-10 w-full text-lg py-1 px-2 text-white font-semibold rounded-md hover:bg-gray-600 active:bg-gray-700"
+        className="bg-green-900 h-10 w-full text-lg py-1 px-2 text-white font-semibold rounded-md hover:bg-green-800 active:bg-green-900"
       >
         Copy
       </button>
