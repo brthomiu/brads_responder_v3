@@ -3,7 +3,7 @@ import type { Template } from "./types/Template";
 export const templateList: Template[] = [
   {
     name: "Bronco - First Response",
-    body: "Hello #user,\n\nYour order for the #item has been received and is being processed. You will receive an update from the assigned technician providing the status of your order within #time.\n\n#extraNote\n\nBest regards,\n#tech",
+    body: "Hello #user,\n\nYour order for the #item has been received and is being processed. You will receive an update from the assigned technician providing the status of your order within #timeFrame.\n\n#extraNote\n\nBest regards,\n#tech",
   },
   {
     name: "Bronco - Desk Delivery",

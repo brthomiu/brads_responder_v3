@@ -11,7 +11,7 @@ const matchVariable = (variable: string, infoObject: InfoObject): string => {
       return infoObject.item;
     case "#location":
       return infoObject.location;
-    case "#time":
+    case "#timeFrame":
       return infoObject.timeFrame;
     case "#tracking":
       return infoObject.tracking;
@@ -31,7 +31,7 @@ export const processText = (
   let processedText = text;
 
   const regex =
-    /#(tech|user|item|location|time|tracking|today|extraNote)/g;
+    /#(tech|user|item|location|timeFrame|tracking|today|extraNote)/g;
   let match;
 
   while ((match = regex.exec(text)) !== null) {

@@ -30,7 +30,7 @@ function Editor() {
     item: loadInputState("item", "requested item(s)"),
     orderClosed: loadInputState("orderClosed", "This request is now being closed and the technician will no longer be able to see further responses, please visit go/stuff to request additional equipment, or visit go/fst-request for additional support."),
     location: loadInputState("location", "your desk"),
-    timeFrame: loadInputState("time", "8 business hours"),
+    timeFrame: loadInputState("timeFrame", "8 business hours"),
     tracking: loadInputState("tracking", "FedEx-XXXXXXXXXX"),
     today: getCurrentLocalDateMMDDYYYY(),
     extraNote: loadInputState("extraNote", ""),
@@ -53,7 +53,7 @@ function Editor() {
     { key: "user", label: "User" },
     { key: "item", label: "Item" },
     { key: "location", label: "Location" },
-    { key: "timeFrame", label: "Timeline" },
+    { key: "timeFrame", label: "Timeframe" },
     { key: "tracking", label: "Tracking" },
     { key: "extraNote", label: "Extra Note" },
   ];
