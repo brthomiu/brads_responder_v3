@@ -11,3 +11,5 @@ Fields for variables only show if they are used by the selected template.
 Add more templates.
 
 Add autocomplete search for selecting templates and for item names.
+
+Add premade notes for security key, sulafat headset, etc...

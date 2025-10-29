@@ -65,7 +65,7 @@ function Editor() {
       <div className="mb-6">
         {/* --- CHANGE 4: Update <select> to be a controlled component --- */}
         <select
-          className="bg-gray-700 h-8 w-lg text-lg font-semibold py-1 px-2 text-white rounded-md"
+          className="bg-gray-700 mt-4 h-8 w-lg text-lg font-semibold py-1 px-2 text-white rounded-md"
           value={selectedTemplate?.name || ""} // Use value prop bound to state
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
             const selectedName = e.target.value;
@@ -140,7 +140,7 @@ function Editor() {
         onClick={() => {
           navigator.clipboard.writeText(processText(text, infoObject));
         }}
-        className="bg-green-900 h-10 w-full text-lg py-1 px-2 text-white font-semibold rounded-md hover:bg-green-800 active:bg-green-900"
+        className="bg-green-900 mb-4 h-10 w-full text-lg py-1 px-2 text-white font-semibold rounded-md hover:bg-green-800 active:bg-green-900"
       >
         Copy
       </button>
